@@ -2,9 +2,10 @@
 module KAT_AES.KATCBC where
 
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as L
 import Data.ByteString.Char8 ()
 
-type KATCBC = (B.ByteString, B.ByteString, B.ByteString, B.ByteString)
+type KATCBC = (B.ByteString, B.ByteString, L.ByteString, L.ByteString)
 
 vectors_aes128_enc, vectors_aes128_dec
                   , vectors_aes192_enc, vectors_aes192_dec

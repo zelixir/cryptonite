@@ -17,8 +17,8 @@ instance Cipher Twofish128 where
 
 instance BlockCipher Twofish128 where
     blockSize                 _ = 16
-    ecbEncrypt (Twofish128 key) = encrypt key
-    ecbDecrypt (Twofish128 key) = decrypt key
+    blockEncrypt (Twofish128 key) = encrypt key
+    blockDecrypt (Twofish128 key) = decrypt key
 
 newtype Twofish192 = Twofish192 Twofish
 
@@ -29,8 +29,8 @@ instance Cipher Twofish192 where
 
 instance BlockCipher Twofish192 where
     blockSize                 _ = 16
-    ecbEncrypt (Twofish192 key) = encrypt key
-    ecbDecrypt (Twofish192 key) = decrypt key
+    blockEncrypt (Twofish192 key) = encrypt key
+    blockDecrypt (Twofish192 key) = decrypt key
 
 newtype Twofish256 = Twofish256 Twofish
 
@@ -41,5 +41,5 @@ instance Cipher Twofish256 where
 
 instance BlockCipher Twofish256 where
     blockSize                 _ = 16
-    ecbEncrypt (Twofish256 key) = encrypt key
-    ecbDecrypt (Twofish256 key) = decrypt key
+    blockEncrypt (Twofish256 key) = encrypt key
+    blockDecrypt (Twofish256 key) = decrypt key

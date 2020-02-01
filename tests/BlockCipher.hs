@@ -18,7 +18,7 @@ import           Crypto.Error
 import           Crypto.Cipher.Types
 import           Data.ByteArray as B hiding (pack, null, length)
 import qualified Data.ByteString as B hiding (all, take, replicate)
-
+import qualified Data.ByteString.Lazy as L hiding (all, take, replicate)
 ------------------------------------------------------------------------
 -- KAT
 ------------------------------------------------------------------------
@@ -26,6 +26,7 @@ import qualified Data.ByteString as B hiding (all, take, replicate)
 type BlockSize = Int
 type KeySize = Int
 type CipherInfo a = (BlockSize, KeySize, ByteString -> a)
+type LB = L.ByteString
 
 instance Show (IV c) where
     show _ = "IV"
@@ -33,32 +34,32 @@ instance Show (IV c) where
 -- | ECB KAT
 data KAT_ECB = KAT_ECB
     { ecbKey        :: ByteString -- ^ Key
-    , ecbPlaintext  :: ByteString -- ^ Plaintext
-    , ecbCiphertext :: ByteString -- ^ Ciphertext
+    , ecbPlaintext  :: LB -- ^ Plaintext
+    , ecbCiphertext :: LB -- ^ Ciphertext
     } deriving (Show,Eq)
 
 -- | CBC KAT
 data KAT_CBC = KAT_CBC
     { cbcKey        :: ByteString -- ^ Key
     , cbcIV         :: ByteString -- ^ IV
-    , cbcPlaintext  :: ByteString -- ^ Plaintext
-    , cbcCiphertext :: ByteString -- ^ Ciphertext
+    , cbcPlaintext  :: LB -- ^ Plaintext
+    , cbcCiphertext :: LB -- ^ Ciphertext
     } deriving (Show,Eq)
 
 -- | CFB KAT
 data KAT_CFB = KAT_CFB
     { cfbKey        :: ByteString -- ^ Key
     , cfbIV         :: ByteString -- ^ IV
-    , cfbPlaintext  :: ByteString -- ^ Plaintext
-    , cfbCiphertext :: ByteString -- ^ Ciphertext
+    , cfbPlaintext  :: LB -- ^ Plaintext
+    , cfbCiphertext :: LB -- ^ Ciphertext
     } deriving (Show,Eq)
 
 -- | CTR KAT
 data KAT_CTR = KAT_CTR
     { ctrKey        :: ByteString -- ^ Key
     , ctrIV         :: ByteString -- ^ IV (usually represented as a 128 bits integer)
-    , ctrPlaintext  :: ByteString -- ^ Plaintext
-    , ctrCiphertext :: ByteString -- ^ Ciphertext
+    , ctrPlaintext  :: LB -- ^ Plaintext
+    , ctrCiphertext :: LB -- ^ Ciphertext
     } deriving (Show,Eq)
 
 -- | XTS KAT
@@ -66,8 +67,8 @@ data KAT_XTS = KAT_XTS
     { xtsKey1       :: ByteString -- ^ 1st XTS key
     , xtsKey2       :: ByteString -- ^ 2nd XTS key
     , xtsIV         :: ByteString -- ^ XTS IV
-    , xtsPlaintext  :: ByteString -- ^ plaintext
-    , xtsCiphertext :: ByteString -- ^ Ciphertext
+    , xtsPlaintext  :: LB -- ^ plaintext
+    , xtsCiphertext :: LB -- ^ Ciphertext
     } deriving (Show,Eq)
 
 -- | AEAD KAT
@@ -96,17 +97,17 @@ data KATs = KATs
 defaultKATs = KATs [] [] [] [] [] []
 
 {-
-testECB (_, _, cipherInit) ecbEncrypt ecbDecrypt kats =
+testECB (_, _, cipherInit) blockEncrypt blockDecrypt kats =
     testGroup "ECB" (concatMap katTest (zip is kats) {- ++ propTests-})
   where katTest (i,d) =
-            [ testCase ("E" ++ show i) (ecbEncrypt ctx (ecbPlaintext d) @?= ecbCiphertext d)
-            , testCase ("D" ++ show i) (ecbDecrypt ctx (ecbCiphertext d) @?= ecbPlaintext d)
+            [ testCase ("E" ++ show i) (blockEncrypt ctx (ecbPlaintext d) @?= ecbCiphertext d)
+            , testCase ("D" ++ show i) (blockDecrypt ctx (ecbCiphertext d) @?= ecbPlaintext d)
             ]
           where ctx = cipherInit (ecbKey d)
         --propTest = testProperty "decrypt.encrypt" (ECBUnit key plaintext) =
 
         --testProperty_ECB (ECBUnit (cipherInit -> ctx) (toBytes -> plaintext)) =
-        --    plaintext `assertEq` ecbDecrypt ctx (ecbEncrypt ctx plaintext)
+        --    plaintext `assertEq` blockDecrypt ctx (blockEncrypt ctx plaintext)
 
 testKatCBC cbcInit cbcEncrypt cbcDecrypt (i,d) =
     [ testCase ("E" ++ show i) (cbcEncrypt ctx iv (cbcPlaintext d) @?= cbcCiphertext d)
@@ -226,11 +227,11 @@ testKATs kats cipher = testGroup "KAT"
 ------------------------------------------------------------------------
 
 -- | any sized bytestring
-newtype Plaintext a = Plaintext { unPlaintext :: B.ByteString }
+newtype Plaintext a = Plaintext { unPlaintext :: LB }
     deriving (Show,Eq)
 
 -- | A multiple of blocksize bytestring
-newtype PlaintextBS a = PlaintextBS { unPlaintextBS :: B.ByteString }
+newtype PlaintextBS a = PlaintextBS { unPlaintextBS :: LB }
     deriving (Show,Eq)
 
 newtype Key a = Key ByteString
@@ -308,11 +309,11 @@ generateIvAEAD = choose (12,90) >>= \sz -> (B.pack <$> replicateM sz arbitrary)
 
 -- | Generate a plaintext multiple of blocksize bytes
 generatePlaintextMultipleBS :: BlockCipher a => Gen (PlaintextBS a)
-generatePlaintextMultipleBS = choose (1,128) >>= \size -> replicateM (size * 16) arbitrary >>= return . PlaintextBS . B.pack
+generatePlaintextMultipleBS = choose (1,128) >>= \size -> replicateM (size * 16) arbitrary >>= return . PlaintextBS . L.pack
 
 -- | Generate any sized plaintext
 generatePlaintext :: Gen (Plaintext a)
-generatePlaintext = choose (0,324) >>= \size -> replicateM size arbitrary >>= return . Plaintext . B.pack
+generatePlaintext = choose (0,324) >>= \size -> replicateM size arbitrary >>= return . Plaintext . L.pack
 
 instance BlockCipher a => Arbitrary (ECBUnit a) where
     arbitrary = ECBUnit <$> generateKey
@@ -347,10 +348,6 @@ instance BlockCipher a => Arbitrary (AEADUnit a) where
                          <*> generateIvAEAD
                          <*> generatePlaintext
                          <*> generatePlaintext
-
-instance StreamCipher a => Arbitrary (StreamUnit a) where
-    arbitrary = StreamUnit <$> generateKey
-                           <*> generatePlaintext
 
 testBlockCipherBasic :: BlockCipher a => a -> [TestTree]
 testBlockCipherBasic cipher = [ testProperty "ECB" ecbProp ]
@@ -401,7 +398,7 @@ testBlockCipherAEAD cipher =
   where aeadProp = toTests cipher
         toTests :: BlockCipher a => a -> (AEADMode -> AEADUnit a -> Bool)
         toTests _ = testProperty_AEAD
-        testProperty_AEAD mode (AEADUnit key testIV (unPlaintext -> aad) (unPlaintext -> plaintext)) = withCtx key $ \ctx ->
+        testProperty_AEAD mode (AEADUnit key testIV (L.toStrict . unPlaintext -> aad) (L.toStrict . unPlaintext -> plaintext)) = withCtx key $ \ctx ->
             case aeadInit mode' ctx iv' of
                 CryptoPassed iniAead ->
                     let aead           = aeadAppendHeader iniAead aad
@@ -413,7 +410,7 @@ testBlockCipherAEAD cipher =
                 CryptoFailed err
                     | err == CryptoError_AEADModeNotSupported -> True
                     | otherwise                               -> error ("testProperty_AEAD: " ++ show err)
-            where (mode', iv') = updateCcmInputSize mode (B.length plaintext) testIV
+            where (mode', iv') = updateCcmInputSize mode (fromIntegral $ B.length plaintext) testIV
                   updateCcmInputSize aeadmode k iv = case aeadmode of
                     AEAD_CCM _ m l -> (AEAD_CCM k m l, B.take 13 (iv <> (B.replicate 15 0)))
                     aeadOther      -> (aeadOther, iv)

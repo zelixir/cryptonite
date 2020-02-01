@@ -60,7 +60,7 @@ step :: (ByteArray ba, BlockCipher k)
      -> ba
      -> ba
 step g iv msg =
-    ecbEncrypt k msg `bxor` iv `bxor` msg
+    blockEncrypt k msg `bxor` iv `bxor` msg
   where
     k = g iv
 

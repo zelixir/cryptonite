@@ -67,10 +67,10 @@ encrypt :: ByteArray ba
         => Twofish     -- ^ The key to use
         -> ba           -- ^ The data to encrypt
         -> ba
-encrypt cipher = mapBlocks (encryptBlock cipher)
+encrypt cipher = mapBlocks (blockEncrypt cipher)
 
-encryptBlock :: ByteArray ba => Twofish -> ba -> ba
-encryptBlock Twofish { s = (s1, s2, s3, s4), k = ks } message = store32ls ts
+blockEncrypt :: ByteArray ba => Twofish -> ba -> ba
+blockEncrypt Twofish { s = (s1, s2, s3, s4), k = ks } message = store32ls ts
     where (a, b, c, d) = load32ls message
           a' = a `xor` arrayRead32 ks 0
           b' = b `xor` arrayRead32 ks 1
@@ -101,11 +101,11 @@ decrypt :: ByteArray ba
         => Twofish     -- ^ The key to use
         -> ba           -- ^ The data to decrypt
         -> ba
-decrypt cipher = mapBlocks (decryptBlock cipher)
+decrypt cipher = mapBlocks (blockDecrypt cipher)
 
 {- decryption for 128 bits blocks -}
-decryptBlock :: ByteArray ba => Twofish -> ba -> ba
-decryptBlock Twofish { s = (s1, s2, s3, s4), k = ks } message = store32ls ixs
+blockDecrypt :: ByteArray ba => Twofish -> ba -> ba
+blockDecrypt Twofish { s = (s1, s2, s3, s4), k = ks } message = store32ls ixs
     where (a, b, c, d) = load32ls message
           a' = c `xor` arrayRead32 ks 6
           b' = d `xor` arrayRead32 ks 7

@@ -57,23 +57,23 @@ instance Cipher DES_EEE2 where
 
 instance BlockCipher DES_EEE3 where
     blockSize _ = 8
-    ecbEncrypt (DES_EEE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (encrypt k3 . encrypt k2 . encrypt k1) . Block)
-    ecbDecrypt (DES_EEE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (decrypt k1 . decrypt k2 . decrypt k3) . Block)
+    blockEncrypt (DES_EEE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (encrypt k3 . encrypt k2 . encrypt k1) . Block)
+    blockDecrypt (DES_EEE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (decrypt k1 . decrypt k2 . decrypt k3) . Block)
 
 instance BlockCipher DES_EDE3 where
     blockSize _ = 8
-    ecbEncrypt (DES_EDE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (encrypt k3 . decrypt k2 . encrypt k1) . Block)
-    ecbDecrypt (DES_EDE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (decrypt k1 . encrypt k2 . decrypt k3) . Block)
+    blockEncrypt (DES_EDE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (encrypt k3 . decrypt k2 . encrypt k1) . Block)
+    blockDecrypt (DES_EDE3 k1 k2 k3) = B.mapAsWord64 (unBlock . (decrypt k1 . encrypt k2 . decrypt k3) . Block)
 
 instance BlockCipher DES_EEE2 where
     blockSize _ = 8
-    ecbEncrypt (DES_EEE2 k1 k2) = B.mapAsWord64 (unBlock . (encrypt k1 . encrypt k2 . encrypt k1) . Block)
-    ecbDecrypt (DES_EEE2 k1 k2) = B.mapAsWord64 (unBlock . (decrypt k1 . decrypt k2 . decrypt k1) . Block)
+    blockEncrypt (DES_EEE2 k1 k2) = B.mapAsWord64 (unBlock . (encrypt k1 . encrypt k2 . encrypt k1) . Block)
+    blockDecrypt (DES_EEE2 k1 k2) = B.mapAsWord64 (unBlock . (decrypt k1 . decrypt k2 . decrypt k1) . Block)
 
 instance BlockCipher DES_EDE2 where
     blockSize _ = 8
-    ecbEncrypt (DES_EDE2 k1 k2) = B.mapAsWord64 (unBlock . (encrypt k1 . decrypt k2 . encrypt k1) . Block)
-    ecbDecrypt (DES_EDE2 k1 k2) = B.mapAsWord64 (unBlock . (decrypt k1 . encrypt k2 . decrypt k1) . Block)
+    blockEncrypt (DES_EDE2 k1 k2) = B.mapAsWord64 (unBlock . (encrypt k1 . decrypt k2 . encrypt k1) . Block)
+    blockDecrypt (DES_EDE2 k1 k2) = B.mapAsWord64 (unBlock . (decrypt k1 . encrypt k2 . decrypt k1) . Block)
 
 init3DES :: ByteArrayAccess key => (Word64 -> Word64 -> Word64 -> a) -> key -> CryptoFailable a
 init3DES constr k

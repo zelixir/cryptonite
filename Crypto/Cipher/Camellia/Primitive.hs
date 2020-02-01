@@ -261,23 +261,23 @@ doBlock mode key (Word128 d1 d2) =
     w64tow128 (d2g, d1g)
 
 {- encryption for 128 bits blocks -}
-encryptBlock :: Camellia -> Word128 -> Word128
-encryptBlock = doBlock Encrypt
+blockEncrypt :: Camellia -> Word128 -> Word128
+blockEncrypt = doBlock Encrypt
 
 {- decryption for 128 bits blocks -}
-decryptBlock :: Camellia -> Word128 -> Word128
-decryptBlock = doBlock Decrypt
+blockDecrypt :: Camellia -> Word128 -> Word128
+blockDecrypt = doBlock Decrypt
 
 -- | Encrypts the given ByteString using the given Key
 encrypt :: ByteArray ba
         => Camellia     -- ^ The key to use
         -> ba           -- ^ The data to encrypt
         -> ba
-encrypt key = B.mapAsWord128 (encryptBlock key)
+encrypt key = B.mapAsWord128 (blockEncrypt key)
 
 -- | Decrypts the given ByteString using the given Key
 decrypt :: ByteArray ba
         => Camellia     -- ^ The key to use
         -> ba           -- ^ The data to decrypt
         -> ba
-decrypt key = B.mapAsWord128 (decryptBlock key)
+decrypt key = B.mapAsWord128 (blockDecrypt key)

@@ -15,7 +15,6 @@ module Crypto.Cipher.AES
 import Crypto.Error
 import Crypto.Cipher.Types
 import Crypto.Cipher.Utils
-import Crypto.Cipher.Types.Block
 import Crypto.Cipher.AES.Primitive
 import Crypto.Internal.Imports
 
@@ -50,20 +49,17 @@ instance Cipher AES256 where
 #define INSTANCE_BLOCKCIPHER(CSTR) \
 instance BlockCipher CSTR where \
     { blockSize _ = 16 \
-    ; ecbEncrypt (CSTR aes) = encryptECB aes \
-    ; ecbDecrypt (CSTR aes) = decryptECB aes \
-    ; cbcEncrypt (CSTR aes) (IV iv) = encryptCBC aes (IV iv) \
-    ; cbcDecrypt (CSTR aes) (IV iv) = decryptCBC aes (IV iv) \
-    ; ctrCombine (CSTR aes) (IV iv) = encryptCTR aes (IV iv) \
+    ; blockEncrypt (CSTR aes) = encryptECB aes \
+    ; blockDecrypt (CSTR aes) = decryptECB aes \
     ; aeadInit AEAD_GCM (CSTR aes) iv = CryptoPassed $ AEAD (gcmMode aes) (gcmInit aes iv) \
     ; aeadInit AEAD_OCB (CSTR aes) iv = CryptoPassed $ AEAD (ocbMode aes) (ocbInit aes iv) \
     ; aeadInit (AEAD_CCM n m l) (CSTR aes) iv = AEAD (ccmMode aes) <$> ccmInit aes iv n m l \
     ; aeadInit _        _          _  = CryptoFailed CryptoError_AEADModeNotSupported \
     }; \
-instance BlockCipher128 CSTR where \
-    { xtsEncrypt (CSTR aes1, CSTR aes2) (IV iv) = encryptXTS (aes1,aes2) (IV iv) \
-    ; xtsDecrypt (CSTR aes1, CSTR aes2) (IV iv) = decryptXTS (aes1,aes2) (IV iv) \
-    };
+instance BlockCipher128 CSTR where
+--     { xtsEncrypt (CSTR aes1, CSTR aes2) (IV iv) = encryptXTS (aes1,aes2) (IV iv) \
+--     ; xtsDecrypt (CSTR aes1, CSTR aes2) (IV iv) = decryptXTS (aes1,aes2) (IV iv) \
+--     };
 
 INSTANCE_BLOCKCIPHER(AES128)
 INSTANCE_BLOCKCIPHER(AES192)

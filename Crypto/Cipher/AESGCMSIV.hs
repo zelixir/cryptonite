@@ -107,7 +107,7 @@ deriveKeys aes iv =
              in (mak, mek)
         _ -> error "AESGCMSIV: invalid cipher"
   where
-    idx n = ecbEncrypt aes (le32iv n iv) `takeView` 8
+    idx n = blockEncrypt aes (le32iv n iv) `takeView` 8
     buildKey = B.concat . map idx
 
 
@@ -183,7 +183,7 @@ tagInput ss (Nonce iv) =
 -- Encrypt the result with AES using the message-encryption key to produce the
 -- tag.
 buildTag :: BlockCipher128 aes => aes -> ScrubbedBytes -> Nonce -> Bytes
-buildTag mek ss iv = ecbEncrypt mek (tagInput ss iv)
+buildTag mek ss iv = blockEncrypt mek (tagInput ss iv)
 
 -- The initial counter block is the tag with the most significant bit of the
 -- last byte set to one.

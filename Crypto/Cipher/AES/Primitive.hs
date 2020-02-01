@@ -73,18 +73,20 @@ instance Cipher AES where
 
 instance BlockCipher AES where
     blockSize _ = 16
-    ecbEncrypt = encryptECB
-    ecbDecrypt = decryptECB
-    cbcEncrypt = encryptCBC
-    cbcDecrypt = decryptCBC
-    ctrCombine = encryptCTR
+    blockEncrypt = encryptECB
+    blockDecrypt = decryptECB
+    -- blockEncrypt = encryptECB
+    -- blockDecrypt = decryptECB
+    -- cbcEncrypt = encryptCBC
+    -- cbcDecrypt = decryptCBC
+    -- ctrCombine = encryptCTR
     aeadInit AEAD_GCM aes iv = CryptoPassed $ AEAD (gcmMode aes) (gcmInit aes iv)
     aeadInit AEAD_OCB aes iv = CryptoPassed $ AEAD (ocbMode aes) (ocbInit aes iv)
     aeadInit (AEAD_CCM n m l) aes iv = AEAD (ccmMode aes) <$> ccmInit aes iv n m l
     aeadInit _        _   _  = CryptoFailed CryptoError_AEADModeNotSupported
 instance BlockCipher128 AES where
-    xtsEncrypt = encryptXTS
-    xtsDecrypt = decryptXTS
+--     xtsEncrypt = encryptXTS
+--     xtsDecrypt = decryptXTS
 
 -- | Create an AES AEAD implementation for GCM
 gcmMode :: AES -> AEADModeImpl AESGCM

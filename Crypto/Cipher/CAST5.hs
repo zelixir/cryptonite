@@ -26,8 +26,8 @@ instance Cipher CAST5 where
 
 instance BlockCipher CAST5 where
     blockSize _ = 8
-    ecbEncrypt (CAST5 k) = B.mapAsWord64 (encrypt k)
-    ecbDecrypt (CAST5 k) = B.mapAsWord64 (decrypt k)
+    blockEncrypt (CAST5 k) = B.mapAsWord64 (encrypt k)
+    blockDecrypt (CAST5 k) = B.mapAsWord64 (decrypt k)
 
 initCAST5 :: ByteArrayAccess key => key -> CryptoFailable CAST5
 initCAST5 bs

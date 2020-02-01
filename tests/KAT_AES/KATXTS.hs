@@ -2,9 +2,10 @@
 module KAT_AES.KATXTS where
 
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as L
 import Data.ByteString.Char8 ()
 
-type KATXTS = (B.ByteString, B.ByteString, B.ByteString, B.ByteString, B.ByteString, B.ByteString)
+type KATXTS = (B.ByteString, B.ByteString, B.ByteString, L.ByteString, L.ByteString, L.ByteString)
 
 vectors_aes128_enc, vectors_aes128_dec, vectors_aes256_enc, vectors_aes256_dec :: [KATXTS]
 vectors_aes128_enc =

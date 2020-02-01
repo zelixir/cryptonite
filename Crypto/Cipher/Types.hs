@@ -14,7 +14,6 @@ module Crypto.Cipher.Types
       Cipher(..)
     , BlockCipher(..)
     , BlockCipher128(..)
-    , StreamCipher(..)
     , DataUnitOffset
     , KeySizeSpecifier(..)
     -- , cfb8Encrypt
@@ -31,6 +30,7 @@ module Crypto.Cipher.Types
     , ivAdd
     -- * Authentification Tag
     , AuthTag(..)
+    , module Crypto.Cipher.Types.Stream
     ) where
 
 import Crypto.Cipher.Types.Base

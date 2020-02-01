@@ -28,8 +28,8 @@ instance Cipher DES where
 
 instance BlockCipher DES where
     blockSize _ = 8
-    ecbEncrypt (DES key) = B.mapAsWord64 (unBlock . encrypt key . Block)
-    ecbDecrypt (DES key) = B.mapAsWord64 (unBlock . decrypt key . Block)
+    blockEncrypt (DES key) = B.mapAsWord64 (unBlock . encrypt key . Block)
+    blockDecrypt (DES key) = B.mapAsWord64 (unBlock . decrypt key . Block)
 
 initDES :: ByteArrayAccess key => key -> CryptoFailable DES
 initDES k

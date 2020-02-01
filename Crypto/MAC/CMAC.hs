@@ -37,7 +37,7 @@ cmac :: (ByteArrayAccess bin, BlockCipher cipher)
      -> bin         -- ^ input message
      -> CMAC cipher -- ^ output tag
 cmac k msg =
-    CMAC $ foldl' (\c m -> ecbEncrypt k $ bxor c m) zeroV ms
+    CMAC $ foldl' (\c m -> blockEncrypt k $ bxor c m) zeroV ms
   where
     bytes = blockSize k
     zeroV = B.replicate bytes 0 :: Bytes
@@ -62,7 +62,7 @@ subKeys :: (BlockCipher k, ByteArray ba)
         -> (ba, ba)  -- ^ sub-keys to compute CMAC
 subKeys k = (k1, k2)   where
     ipt = cipherIPT k
-    k0 = ecbEncrypt k $ B.replicate (blockSize k) 0
+    k0 = blockEncrypt k $ B.replicate (blockSize k) 0
     k1 = subKey ipt k0
     k2 = subKey ipt k1
 

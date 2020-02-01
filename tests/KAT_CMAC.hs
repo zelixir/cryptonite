@@ -2,7 +2,7 @@
 module KAT_CMAC (tests) where
 
 import qualified Crypto.MAC.CMAC as CMAC
-import           Crypto.Cipher.Types (Cipher, cipherInit, BlockCipher, ecbEncrypt, blockSize)
+import           Crypto.Cipher.Types (Cipher, cipherInit, BlockCipher, blockEncrypt, blockSize)
 import           Crypto.Error (eitherCryptoError)
 import           Crypto.Cipher.AES (AES128, AES192, AES256)
 import           Crypto.Cipher.TripleDES (DES_EDE3, DES_EDE2)
@@ -26,7 +26,7 @@ unsafeCipher :: Cipher k => ByteString -> k
 unsafeCipher = either (error . show) id . eitherCryptoError . cipherInit
 
 ecb0 :: BlockCipher k => k -> ByteString
-ecb0 k = ecbEncrypt k $ BS.replicate (blockSize k) 0
+ecb0 k = blockEncrypt k $ BS.replicate (blockSize k) 0
 
 {- Test vectors from NIST data-sheet
    (AES128-CMAC, AES192-CMAC, AES256-CMAC, Three Key TDEA, Two Key TDEA)
